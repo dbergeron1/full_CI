@@ -1,5 +1,5 @@
 # full_CI
-Full configuration-interaction code for the 2D extended Hubbard model with natural and Hartree-Fock orbitals.
+Full configuration-interaction for the 2D extended Hubbard model with natural and Hartree-Fock orbitals.
 
 This code computes the ground state using local, natural, and Hartree-Fock spin-orbitals, for the two-dimensional extended Hubbard model, including local, nearest neighbor, and next-nearest neighbor interaction, and next-nearest neighbor hopping.
 
