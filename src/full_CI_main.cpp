@@ -155,39 +155,6 @@ int main(int arg_N, char *args[])
 	for (i=0; i<Nu; i++) setbit(ref_SD, u[i]);
 	for (i=0; i<Nd; i++) setbit(ref_SD, d[i]+L);
 	
-//	val_T a_P=5.0;
-//	val_T a_eig=10.0;
-//	H_d.test_Lanczos(300, 100, a_P, a_eig);
-
-//	cout<<"ref_SD: ";
-//	print_binary_string(ref_SD,2*L);
-//	cout<<endl;
-
-/*
-//	val_T DU_HF=0.06;
-//	val_T U_init_HF=2.4;
-	val_T DU_HF=0.12;
-	val_T U_init_HF=2.0;
-	val_T Dr_tmp;
-	val_T Nr_HF;
-	if (U_init_HF<U_par[0])
-	{
-		Dr_tmp=DU_HF/U_par[0];
-		r_init_HF=U_init_HF/U_par[0];
-		Nr_HF=round((1.0-r_init_HF)/Dr_tmp);
-		cout<<"Nr_HF: "<<Nr_HF<<endl;
-		Dr_HF=(1.0-r_init_HF)/Nr_HF;
-	}
-	else
-	{
-		r_init_HF=0.5;
-		Dr_HF=0.5;
-	}
-	cout<<"r_init_HF: "<<r_init_HF<<endl;
-	cout<<"Dr_HF: "<<Dr_HF<<endl;
-*/
-
-
 	//compute the ground state using the local spin-orbital basis
 	H_d.set_SO_basis(Id,Id,ref_SD);
 	H_d.create_CI_ph_basis();
