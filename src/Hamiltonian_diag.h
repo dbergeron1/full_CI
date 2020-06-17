@@ -35,6 +35,7 @@ public:
 	val_T E_ref;
 	vector<SD_T> CI_ph_basis; //CI basis expressed in the particle-hole representation relative to the reference SD. length: NSD
 	vector<SD_T> CI_abs_basis; //CI basis expressed in the absolute representation. length: NSD
+	map<SD_T, ind_T> CI_ph_basis_map;
 	vector<short int> abs_to_ph_sign; //sign between the two representation. length: NSD
 	ind_T NSD; //total number of SD's in the N-particle basis
 	sparse_matrix_vec<ind_T, val_T> H_v; //Hamiltonian matrix
@@ -123,6 +124,9 @@ void Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::compare_H_matrix()
 	auto it=H_m[0].begin();
 	
 	create_H_matrix();
+//	create_H_matrix_abs();
+	
+	cout<<"H_m vs H_m_2:\n";
 	for (i=0; i<NSD; i++)
 	{
 		for (auto &elem: H_m[i])
@@ -130,14 +134,49 @@ void Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::compare_H_matrix()
 			it=H_m_2[i].find(elem.first);
 			if (it!=H_m_2[i].end())
 			{
-				cout<<setw(10)<<i<<setw(10)<<elem.first<<setw(20)<<elem.second<<setw(20)<<it->second<<elem.second-it->second<<endl;
+				//cout<<setw(10)<<i<<setw(10)<<elem.first<<setw(20)<<elem.second<<setw(20)<<it->second<<elem.second-it->second<<endl;
+				print_SD(CI_ph_basis[i]);
+				cout<<"\t\t";
+				print_SD(CI_ph_basis[elem.first]);
+				cout<<"\t\t"<<setw(20)<<elem.second<<setw(20)<<it->second<<elem.second-it->second<<endl;
 			}
 			else
 			{
-				cout<<setw(10)<<i<<setw(10)<<elem.first<<elem.second<<endl;
+			//	cout<<setw(10)<<i<<setw(10)<<elem.first<<elem.second<<endl;
+				print_SD(CI_ph_basis[i]);
+				cout<<"\t\t";
+				print_SD(CI_ph_basis[elem.first]);
+				cout<<"\t\t"<<setw(20)<<elem.second<<endl;
 			}
 		}
 
+	}
+	
+	
+	cout<<"H_m_2 vs H_m:\n";
+	for (i=0; i<NSD; i++)
+	{
+		for (auto &elem: H_m_2[i])
+		{
+			it=H_m[i].find(elem.first);
+			if (it!=H_m[i].end())
+			{
+			//	cout<<setw(10)<<i<<setw(10)<<elem.first<<setw(20)<<elem.second<<setw(20)<<it->second<<elem.second-it->second<<endl;
+				print_SD(CI_ph_basis[i]);
+				cout<<"\t\t";
+				print_SD(CI_ph_basis[elem.first]);
+				cout<<"\t\t"<<setw(20)<<elem.second<<setw(20)<<it->second<<elem.second-it->second<<endl;
+			}
+			else
+			{
+			//	cout<<setw(10)<<i<<setw(10)<<elem.first<<elem.second<<endl;
+				print_SD(CI_ph_basis[i]);
+				cout<<"\t\t";
+				print_SD(CI_ph_basis[elem.first]);
+				cout<<"\t\t"<<setw(20)<<elem.second<<endl;
+			}
+		}
+		
 	}
 	
 //	cout<<setw(10)<<1;
@@ -639,8 +678,8 @@ void Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::compute_ground_state(unsigned 
 	
 	if (random_init_st) iterate_ref_SD=false;
 	
-	create_H_matrix();
-//	create_H_matrix_ph();
+//	create_H_matrix();
+	create_H_matrix_ph();
 	
 	vector<double> eig_vals, eig_vals_all;
 	
@@ -1415,7 +1454,7 @@ void Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::Lanczos(unsigned NL)
 	while (iL<NL && Lanczos_iteration()) iL++;
 }
 
-//version with the sign of the absolute representation
+//version without the sign of the absolute representation
 template<class ind_T, class val_T, class SD_T, class cfs_T>
 void Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::create_H_matrix_abs()
 {
@@ -2408,6 +2447,8 @@ template<class ind_T, class val_T, class SD_T, class cfs_T>
 void Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::add_H_m_element_sym(ind_T i, SD_T SD_tmp, val_T val)
 {
 	ind_T j=get_SD_index(SD_tmp);
+	
+//	cout<<"add_H_m_element_sym:  "<<setw(20)<<SD_tmp<<setw(20)<<CI_ph_basis[j]<<CI_ph_basis[j]-SD_tmp<<endl;
 	
 	if (j>i)
 	{
@@ -6214,7 +6255,19 @@ int Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::add_bits_between(SD_T SD_tmp, i
 	
 	return n;
 }
- 
+
+template<class ind_T, class val_T, class SD_T, class cfs_T>
+ind_T Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::get_SD_index(SD_T sd)
+{
+	auto it=CI_ph_basis_map.find(sd);
+	if (it!=CI_ph_basis_map.end()) return it->second;
+	else
+	{
+		cerr<<"get_SD_index() error\n";
+		exit(EXIT_FAILURE);
+	}
+}
+/*
 template<class ind_T, class val_T, class SD_T, class cfs_T>
 ind_T Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::get_SD_index(SD_T sd)
 {
@@ -6245,6 +6298,7 @@ ind_T Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::get_SD_index(SD_T sd)
 	
 	return ref_ind+i+N_u_h*(j+N_u_p*(k+N_d_h*l));
 }
+*/
 
 template<class ind_T, class val_T, class SD_T, class cfs_T>
 ind_T Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::get_string_index(SD_T str, unsigned Nb)
@@ -6349,6 +6403,7 @@ bool Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::create_CI_ph_basis()
 	int Nph_max=Nph_d_max+Nph_u_max;
 	
 	//prepare the basis vector for insertion of the basis SD's and insert the reference SD (0 excitation SD)
+	CI_ph_basis_map.clear();
 	CI_ph_basis.clear();
 	CI_ph_basis.resize(NSD);
 	CI_abs_basis.clear();
@@ -6360,6 +6415,9 @@ bool Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::create_CI_ph_basis()
 	CI_abs_basis[0]=ref_SD;
 	abs_to_ph_sign[0]=1;
 	ind_T Nst_sum=1;
+	
+	CI_ph_basis_map.insert(pair<SD_T,ind_T>(0,0));
+	auto it=CI_ph_basis_map.begin();
 	
 	//the bit strings required to generate the SD's. list_h and list_p are vectors of hole and particle strings
 	//list_ph_u and list_ph_d are vectors in which each element is a vector of strings with a given number of excitations
@@ -6413,6 +6471,9 @@ bool Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::create_CI_ph_basis()
 				{
 					m=Nst_sum+k+j*Nst_ph_u;
 					CI_ph_basis[m]=list_ph_u[n-nd][k]+st_tmp;
+					it=CI_ph_basis_map.find(CI_ph_basis[m]);
+					if (it!=CI_ph_basis_map.end()) cout<<"create_CI_ph_basis() error\n";
+					else CI_ph_basis_map.insert(pair<SD_T,ind_T>(CI_ph_basis[m],m));
 					convert_from_ph_SD(CI_ph_basis[m],CI_abs_basis[m],abs_to_ph_sign[m]);
 				//	cout<<m<<"\t\t";
 				//	print_SD(CI_ph_basis[m]);
@@ -6431,12 +6492,13 @@ bool Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::create_CI_ph_basis()
 /*
 	for (j=0; j<NSD; j++)
 	{
-		cout<<setw(10)<<j<<setw(10)<<get_SD_index(CI_ph_basis[j]);
-		print_binary_string(CI_ph_basis[j],2*L);
+		k=get_SD_index(CI_ph_basis[j]);
+		print_SD(CI_ph_basis[j]);
+		cout<<"\t\t"<<setw(10)<<j<<setw(10)<<k<<j-k;
 		cout<<endl;
 	}
 */
-
+	
 	return true;
 	
 }

@@ -1,6 +1,6 @@
 //
 //  SO_basis_Hamiltonian.h
-//  
+//  full_CI
 //
 //  Created by Dom2 on 20-03-28.
 //
@@ -349,21 +349,21 @@ void SO_basis_Hamiltonian<ind_T, val_T, SD_T>::compute_Hartree_Fock_sol(int Nite
 		cout<<"diff_SO_bases:\n";
 		print_matrix(diff_SO_bases);
 		
-		val_T E_HF=0;
+	//	val_T E_HF=0;
 		cout<<"eigs_u:\n";
 		for (i=0; i<Nu; i++)
 		{
 			cout<<eigs_u[i]<<endl;
-			E_HF+=eigs_u[i];
+		//	E_HF+=eigs_u[i];
 		}
 		cout<<"eigs_d:\n";
 		for (i=0; i<Nd; i++)
 		{
 			cout<<eigs_d[i]<<endl;
-			E_HF+=eigs_d[i];
+		//	E_HF+=eigs_d[i];
 		}
 		
-		cout<<"E_HF: "<<E_HF<<endl;
+	//	cout<<"E_HF: "<<E_HF<<endl;
 		
 	}
 }
