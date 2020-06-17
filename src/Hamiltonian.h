@@ -1,6 +1,6 @@
 //
 //  Hamiltonian.h
-//  project Full_CI
+//  full_CI
 //
 //  Copyright (C) Dominic Bergeron 2020
 //

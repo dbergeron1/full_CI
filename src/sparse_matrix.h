@@ -1,6 +1,6 @@
 //
 //  sparse_matrix.h
-//  project STTN
+//  full_CI
 //
 //  Copyright (C) Dominic Bergeron 2020
 //
