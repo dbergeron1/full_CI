@@ -1,6 +1,6 @@
 //
 //  Hamiltonian_diag.h
-//  project FULL_CI
+//  full_CI
 //
 //  Created by Dom2 on 20-04-09.
 //
@@ -46,7 +46,7 @@ public:
 	vector<vector<val_T>> natural_basis_up, natural_basis_down;
 	vector<double> DM_eig_up, DM_eig_down;
 	vector<cfs_T> aL, bL; //Lanczos matrix elements
-	vector<cfs_T> vLp, vL, vLm; //Lanczos vectors
+	vector<cfs_T> vL_init, vLp, vL, vLm; //Lanczos vectors
 //	vector<cfs_T> vL0, vL1, vL2;
 	cfs_T mod2v; //squared modulus of intermediate Lanczos vector
 	ind_T iL; //Lanczos iteration index
@@ -639,8 +639,8 @@ void Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::compute_ground_state(unsigned 
 	
 	if (random_init_st) iterate_ref_SD=false;
 	
-//	create_H_matrix();
-	create_H_matrix_ph();
+	create_H_matrix();
+//	create_H_matrix_ph();
 	
 	vector<double> eig_vals, eig_vals_all;
 	
@@ -1314,7 +1314,11 @@ void Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::Lanczos_init(unsigned NL, bool
 	vLm=vL;
 	
 	//i=0
-	if (random_init_st)
+	if (compute_GS_vec)
+	{
+		vL=vL_init;
+	}
+	else if (random_init_st)
 	{
 		cout<<"Lanczos_init(): using random initial state.\n";
 		mt19937 rnd_gen;
@@ -1327,11 +1331,13 @@ void Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::Lanczos_init(unsigned NL, bool
 		}
 		scalar_prod_vec<ind_T, cfs_T>(mod2v, vL, vL);
 		vec_times_equal<ind_T, cfs_T>(vL,1.0/sqrt(mod2v));
+		vL_init=vL;
 	}
 	else
 	{
 		cout<<"Lanczos_init(): using reference SD as initial state.\n";
 		vL[0]=1;
+		vL_init=vL;
 	}
 	
 	//keep first Lanczos to check orthogonality
@@ -1347,7 +1353,7 @@ void Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::Lanczos_init(unsigned NL, bool
 	{
 		GS_vec_SO.clear();
 		GS_vec_SO.resize(NSD,0);
-		GS_vec_SO[0]=GS_vec_Lanczos[0];
+		vec_plus_equal<ind_T, cfs_T>(GS_vec_SO, vL, GS_vec_Lanczos[0]);
 		//	cout<<"GS_vec_SO:\n";
 		//	for (ind_T j=0; j<NSD; j++) cout<<setw(10)<<j<<GS_vec_SO[j]<<endl;
 	}
