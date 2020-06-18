@@ -2454,8 +2454,9 @@ void Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::convert_H_m_to_H_v()
 			H_v[i][j]=elem;
 			j++;
 		}
+		H_m[i].clear();
 	}
-//	H_m.clear();
+	H_m.clear();
 	
 }
 
