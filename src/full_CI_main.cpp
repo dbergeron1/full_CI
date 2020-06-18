@@ -5,8 +5,6 @@
 //
 
 #include "Hamiltonian_diag.h"
-#include "misc.h"
-//#include "SO_basis_Hamiltonian.h"
 
 using namespace std;
 
@@ -25,9 +23,9 @@ int main(int arg_N, char *args[])
 	
 	coord_vec_T lattice(L_max);
 	
-	ifstream params_file("../../full_CI.dat",ios::in);
+	ifstream params_file("../../full_CI.dat");
 	
-	string str, displ_figs, iter_ref_SD, random_init_st;
+	string str, displ_figs, random_init_st; //iter_ref_SD,
 	vector<val_T> U_par(3);
 	vector<val_T> t_par(2);
 	vector<unsigned> u;
@@ -66,7 +64,7 @@ int main(int arg_N, char *args[])
 					lattice[L][0]=j;
 					lattice[L][1]=i;
 					L++;
-			//		cout<<"x, y: "<<j<<"\t"<<i<<endl;
+					//		cout<<"x, y: "<<j<<"\t"<<i<<endl;
 				}
 			}
 			i++;
@@ -110,8 +108,8 @@ int main(int arg_N, char *args[])
 		cout<<str<<'\t'<<displ_figs<<endl;
 		params_file>>str>>random_init_st;
 		cout<<str<<'\t'<<random_init_st<<endl;
-		params_file>>str>>iter_ref_SD;
-		cout<<str<<'\t'<<iter_ref_SD<<endl;
+		//	params_file>>str>>iter_ref_SD;
+		//	cout<<str<<'\t'<<iter_ref_SD<<endl;
 	}
 	else
 	{
@@ -126,18 +124,16 @@ int main(int arg_N, char *args[])
 	
 	bool display_figures=false;
 	if (displ_figs=="yes") display_figures=true;
-	bool iterate_ref_SD=false;
-	if (iter_ref_SD=="yes") iterate_ref_SD=true;
 	bool rnd_init_st=false;
 	if (random_init_st=="yes") rnd_init_st=true;
+	//	bool iterate_ref_SD=false;
+	//	if (iter_ref_SD=="yes") iterate_ref_SD=true;
 	
 	
-	//6 sites: U_c=2.69 => U_init_HF
-	//8 sites U_c=1.9
 	cout<<"U_init_HF: "<<r_init_HF*U_par[0]<<endl;
 	cout<<"DU_HF: "<<Dr_HF*U_par[0]<<endl;
 	
-
+	
 	vector<val_T> onsite_E;
 	
 	double tol=1e-8;
@@ -158,17 +154,17 @@ int main(int arg_N, char *args[])
 	//compute the ground state using the local spin-orbital basis
 	H_d.set_SO_basis(Id,Id,ref_SD);
 	H_d.create_CI_ph_basis();
-	H_d.compute_ground_state(Niter_Lanczos, iterate_ref_SD, display_figures, rnd_init_st);
-
+	H_d.compute_ground_state(local, Niter_Lanczos, display_figures, rnd_init_st);
+	
 	//compute the ground state using the natural spin-orbital computed with the preceding ground state
 	H_d.compute_natural_spin_orbitals();
 	H_d.create_CI_ph_basis();
-	H_d.compute_ground_state(Niter_Lanczos, iterate_ref_SD, display_figures);
-
+	H_d.compute_ground_state(natural, Niter_Lanczos, display_figures);
+	
 	//compute the ground state using the unrestricted Hartree-Fock orbitals
 	H_d.compute_Hartree_Fock_sol(Niter_max_HF,r_init_HF,Dr_HF,tol_HF,f_A_HF,g_HF);
 	H_d.create_CI_ph_basis();
-	H_d.compute_ground_state(Niter_Lanczos, iterate_ref_SD, display_figures);
-
+	H_d.compute_ground_state(HartreeFock, Niter_Lanczos, display_figures);
+	
 	return 0;
 }

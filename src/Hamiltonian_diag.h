@@ -14,6 +14,7 @@
 #include "graph_2D.h"
 
 enum operator_type {part, hole};
+enum orbital_type_T {local,natural,HartreeFock};
 
 template<class ind_T, class val_T, class SD_T, class cfs_T>
 class Hamiltonian_diag: public SO_basis_Hamiltonian<ind_T, val_T, SD_T>
@@ -43,6 +44,7 @@ public:
 	//each element in N_SD_l is a vector corresponding to a number of excitations, which elements are the cumulative numbers of SD's from 0 excitations to the pair (N_ph,N_down), inclusively. This vector is used to obtain the index of a SD.
 	vector<vector<ind_T>> N_SD_l;
 	
+	
 	vector<vector<cfs_T>> DM_up, DM_down; //single-particle density matrices
 	vector<vector<val_T>> natural_basis_up, natural_basis_down;
 	vector<double> DM_eig_up, DM_eig_down;
@@ -52,6 +54,8 @@ public:
 	cfs_T mod2v; //squared modulus of intermediate Lanczos vector
 	ind_T iL; //Lanczos iteration index
 	vector<cfs_T> GS_vec_Lanczos, GS_vec_SO; //ground-state vector in the Lanczos and spin-orbital bases, respectively
+	string orbital_name;
+	orbital_type_T orbital_type;
 	
 //	vector<cfs_T> aL_tst, bL_tst;
 //	sparse_matrix_vec<ind_T, val_T> H_tst;
@@ -98,7 +102,7 @@ public:
 	void Lanczos_init(unsigned NL, bool random_init_st=false);
 	bool Lanczos_iteration();
 	void eigs_Lanczos(vector<double> &eig_vals, bool compute_eig_vectors, unsigned NL);
-	void compute_ground_state(unsigned NL_max, bool iterate_ref_SD=false, bool display_figs=false, bool random_init_st=false);
+	void compute_ground_state(orbital_type_T OT, unsigned NL_max, bool display_figs=false, bool random_init_st=false);
 	void compute_natural_spin_orbitals();
 	
 	void test_Lanczos(unsigned Nst, unsigned NL_max, val_T a_P, val_T a_eig);
@@ -190,6 +194,12 @@ void Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::compare_H_matrix()
 template<class ind_T, class val_T, class SD_T, class cfs_T>
 void Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::compute_natural_spin_orbitals()
 {
+	if (GS_vec_SO.size()!=NSD)
+	{
+		cerr<<"compute_natural_spin_orbitals() error: no ground state vector available\n";
+		exit(EXIT_FAILURE);
+	}
+	
 	int i,j,q;
 	ind_T l, r;
 	SD_T SD_l_abs, SD_l_ph;
@@ -671,12 +681,27 @@ void Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::compute_natural_spin_orbitals(
 }
 
 template<class ind_T, class val_T, class SD_T, class cfs_T>
-void Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::compute_ground_state(unsigned NL_max, bool iterate_ref_SD, bool display_figs, bool random_init_st)
+void Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::compute_ground_state(orbital_type_T OT, unsigned NL_max, bool display_figs, bool random_init_st)
 {
+	orbital_type=OT;
+	if (orbital_type==local)
+	{
+		orbital_name="local";
+	}
+	else if (orbital_type==natural)
+	{
+		orbital_name="natural";
+	}
+	else
+	{
+		orbital_name="Hartree-Fock";
+	}
+		
+	bool iterate_ref_SD=false;
 	double tol_E_GS=1e-4;
 	int Niter_ref_SD=1;
 	
-	if (random_init_st) iterate_ref_SD=false;
+//	if (random_init_st) iterate_ref_SD=false;
 	
 //	create_H_matrix();
 	create_H_matrix_ph();
@@ -692,6 +717,13 @@ void Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::compute_ground_state(unsigned 
 	char xl[]="$N_L$";
 	char yl[]="E";
 	char attr1[]="'o',color='r',markerfacecolor='r'";
+	string orbitals=orbital_name+" orbitals";
+	string ttl_E, ttl_cfs, ttl_cfs2;
+	ttl_E="energies for "+orbitals;
+	ttl_cfs="wave function coefficients for "+orbitals;
+	ttl_cfs2="squared coefficients for "+orbitals;
+	
+	cout<<"computing ground state with "<<orbitals<<endl;
 	
 	if (!iterate_ref_SD) Niter_ref_SD=1;
 	double D_E_GS, E_GS=0;
@@ -744,13 +776,14 @@ void Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::compute_ground_state(unsigned 
 		
 		E_GS=eig_vals[0];
 		
-		cout<<"E_GS:  "<<E_GS<<endl;
+		cout<<"ground state energy:  "<<E_GS<<endl;
 		
 		if (display_figs)
 		{
 			g1.add_data(NL_vec_all.data(),eig_vals_all.data(),NL_all);
 			g1.add_attribute(attr1);
 			g1.set_axes_labels(xl,yl);
+			g1.add_title(ttl_E.c_str());
 			g1.curve_plot();
 		//	graph_2D::show_figures();
 		}
@@ -826,11 +859,13 @@ void Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::compute_ground_state(unsigned 
 			g2.add_data(SO_ind.data(),H_GS_vec_SO_d.data(),NSD);
 			g2.add_attribute(attr_H_GS);
 			g2.set_axes_labels(xl_GS,yl_GS);
+			g2.add_title(ttl_cfs.c_str());
 			g2.curve_plot();
 			
 			g3.add_data(SO_ind.data(),GS_vec_SO_2.data(),NSD);
 			g3.add_attribute(attr_GS_2);
 			g3.set_axes_labels(xl_GS,yl_GS_2);
+			g3.add_title(ttl_cfs2.c_str());
 			g3.curve_plot();
 		}
 		
@@ -1359,7 +1394,7 @@ void Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::Lanczos_init(unsigned NL, bool
 	}
 	else if (random_init_st)
 	{
-		cout<<"Lanczos_init(): using random initial state.\n";
+	//	cout<<"Lanczos_init(): using random initial state.\n";
 		mt19937 rnd_gen;
 		uniform_int_distribution<unsigned> distr;
 		uniform_real_distribution<double> distr_real(0,1.0);
@@ -1374,7 +1409,7 @@ void Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::Lanczos_init(unsigned NL, bool
 	}
 	else
 	{
-		cout<<"Lanczos_init(): using reference SD as initial state.\n";
+	//	cout<<"Lanczos_init(): using reference SD as initial state.\n";
 		vL[0]=1;
 		vL_init=vL;
 	}
