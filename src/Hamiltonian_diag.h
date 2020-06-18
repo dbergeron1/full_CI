@@ -200,6 +200,8 @@ void Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::compute_natural_spin_orbitals(
 		exit(EXIT_FAILURE);
 	}
 	
+	cout<<"computing natural orbitals...\n";
+	
 	int i,j,q;
 	ind_T l, r;
 	SD_T SD_l_abs, SD_l_ph;
@@ -312,11 +314,11 @@ void Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::compute_natural_spin_orbitals(
 	
 //	cout<<"single-particle density matrix computed\n";
 	
-	cout<<"DM_up:\n";
-	print_matrix(DM_up);
+//	cout<<"DM_up:\n";
+//	print_matrix(DM_up);
 	
-	cout<<"DM_down:\n";
-	print_matrix(DM_down);
+//	cout<<"DM_down:\n";
+//	print_matrix(DM_down);
 	
 /*
  
@@ -554,11 +556,11 @@ void Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::compute_natural_spin_orbitals(
 	
 	graph_2D g1, g2;
 	
-	char xl_u[]="up natural spin-orbital index";
-	char yl_u[]="up natural spin-orbital filling";
+	char xl_u[]="natural orbital index";
+	char ttl_u[]="spin-up natural orbital filling";
 	char attr_u[]="'o',color='r',markerfacecolor='r'";
-	char xl_d[]="down natural spin-orbital index";
-	char yl_d[]="down natural spin-orbital filling";
+	char xl_d[]="natural orbital index";
+	char ttl_d[]="spin-down natural orbital filling";
 	char attr_d[]="'o',color='b',markerfacecolor='b'";
 	
 	if (H_T::H_real)
@@ -598,7 +600,8 @@ void Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::compute_natural_spin_orbitals(
 			
 			g1.add_data(SO_ind.data(),DM_eig_up.data(),L);
 			g1.add_attribute(attr_u);
-			g1.set_axes_labels(xl_u,yl_u);
+			g1.set_axes_labels(xl_u,NULL);
+			g1.add_title(ttl_u);
 			g1.set_axes_lims(NULL,ylims);
 			g1.curve_plot();
 			
@@ -632,7 +635,8 @@ void Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::compute_natural_spin_orbitals(
 			
 			g2.add_data(SO_ind.data(),DM_eig_down.data(),L);
 			g2.add_attribute(attr_d);
-			g2.set_axes_labels(xl_d,yl_d);
+			g2.set_axes_labels(xl_d,NULL);
+			g2.add_title(ttl_d);
 			g2.set_axes_lims(NULL,ylims);
 			g2.curve_plot();
 			
@@ -845,9 +849,9 @@ void Hamiltonian_diag<ind_T, val_T, SD_T, cfs_T>::compute_ground_state(orbital_t
 		//	cout<<"gound state energy converged\n";
 		}
 		
-		char xl_GS[]="spin-orbital index";
+		char xl_GS[]="determinant index";
 		char yl_GS[]="GS coeff";
-		char yl_GS_2[]="$(GS coeff)^2$";
+		char yl_GS_2[]="(GS coeff)$^2$";
 		char attr_GS[]="'o',color='b',markerfacecolor='none'";
 		char attr_H_GS[]="'s',color='r',markerfacecolor='none'";
 		char attr_GS_2[]="'^',color='c',markerfacecolor='c'";

@@ -70,7 +70,7 @@ void SO_basis_Hamiltonian<ind_T, val_T, SD_T>::compute_Hartree_Fock_sol(int Nite
 {
 	int i,j,k;
 	
-//	val_T f=1.0-g;
+	cout<<"computing Hartree-Fock orbitals...\n";
 	
 	mt19937 rnd_gen;
 	uniform_int_distribution<unsigned> distr;
@@ -191,7 +191,7 @@ void SO_basis_Hamiltonian<ind_T, val_T, SD_T>::compute_Hartree_Fock_sol(int Nite
 			dev_d=1;
 			while (k<Niter_max && (dev_u>tol || dev_d>tol || dev_t_Fock_u>tol || dev_t_Fock_d>tol))
 			{
-				cout<<"r="<<r<<"\t"<<"k="<<k<<"\t"<<"U_max: "<<r*H_T::U[0]<<endl;
+			//	cout<<"r="<<r<<"\t"<<"k="<<k<<"\t"<<"U_max: "<<r*H_T::U[0]<<endl;
 				//diagonalize t_Fock_u
 				for (i=0; i<L; i++)
 					for (j=0; j<L; j++)
@@ -202,12 +202,12 @@ void SO_basis_Hamiltonian<ind_T, val_T, SD_T>::compute_Hartree_Fock_sol(int Nite
 				if (!INFO[0])
 				{
 					dev_u=0;
-					cout<<"eigs(t_Fock_u):\n";
+				//	cout<<"eigs(t_Fock_u):\n";
 					for (i=0; i<L; i++)
 					{
 						eigs_u[i]=W[i];
 						dev_u+=(eigs_u[i]-eigs_u_prec[i])*(eigs_u[i]-eigs_u_prec[i]);
-						cout<<W[i]<<endl;
+				//		cout<<W[i]<<endl;
 						for (j=0; j<L; j++)
 							rel_basis_u[i][j]=A[i+j*L];
 					}
@@ -231,12 +231,12 @@ void SO_basis_Hamiltonian<ind_T, val_T, SD_T>::compute_Hartree_Fock_sol(int Nite
 				if (!INFO[0])
 				{
 					dev_d=0;
-					cout<<"eigs(t_Fock_d):\n";
+				//	cout<<"eigs(t_Fock_d):\n";
 					for (i=0; i<L; i++)
 					{
 						eigs_d[i]=W[i];
 						dev_d+=(eigs_d[i]-eigs_d_prec[i])*(eigs_d[i]-eigs_d_prec[i]);
-						cout<<W[i]<<endl;
+				//		cout<<W[i]<<endl;
 						for (j=0; j<L; j++)
 							rel_basis_d[i][j]=A[i+j*L];
 					}
@@ -336,6 +336,11 @@ void SO_basis_Hamiltonian<ind_T, val_T, SD_T>::compute_Hartree_Fock_sol(int Nite
 		if (A) delete [] A;
 		if (WORK) delete [] WORK;
 		
+		cout<<"t_Fock_u:\n";
+		print_matrix(t_Fock_u);
+		cout<<"t_Fock_d:\n";
+		print_matrix(t_Fock_d);
+		
 		cout<<"SO_basis_u:\n";
 		print_matrix(abs_basis_u);
 		cout<<"SO_basis_d:\n";
@@ -350,13 +355,13 @@ void SO_basis_Hamiltonian<ind_T, val_T, SD_T>::compute_Hartree_Fock_sol(int Nite
 		print_matrix(diff_SO_bases);
 		
 	//	val_T E_HF=0;
-		cout<<"eigs_u:\n";
+		cout<<"eigs(t_Fock_u):\n";
 		for (i=0; i<Nu; i++)
 		{
 			cout<<eigs_u[i]<<endl;
 		//	E_HF+=eigs_u[i];
 		}
-		cout<<"eigs_d:\n";
+		cout<<"eigs(t_Fock_d):\n";
 		for (i=0; i<Nd; i++)
 		{
 			cout<<eigs_d[i]<<endl;
@@ -567,11 +572,11 @@ void SO_basis_Hamiltonian<ind_T, val_T, SD_T>::set_t_Fock(val_T r)
 		}
 	}
 	
-	cout<<"t_Fock_u:\n";
-	print_matrix(t_Fock_u);
+//	cout<<"t_Fock_u:\n";
+//	print_matrix(t_Fock_u);
 	
-	cout<<"t_Fock_d:\n";
-	print_matrix(t_Fock_d);
+//	cout<<"t_Fock_d:\n";
+//	print_matrix(t_Fock_d);
 
 }
 
