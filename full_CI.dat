@@ -1,0 +1,20 @@
+U: 8 0 0
+t: -1 0.3
+Nu: 4
+Nd: 4
+lattice:
+ *
+***
+***
+ *
+pos_u: 0 1 3 5
+pos_d: 2 4 6 7
+Niter_Lanczos: 100
+Niter_max_HF: 200
+r_init_HF: 0.5
+Dr_HF: 0.5
+tol_HF: 1e-8
+f_A_HF: 1.0
+damping_HF: 0.5
+display_figures: yes
+random_init_state: no
