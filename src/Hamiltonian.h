@@ -248,7 +248,7 @@ void Hamiltonian<ind_T, val_T>::set_V_Hubbard_2D()
 	{
 		insert_elems_Hubbard(i, i+L, U[0], V_ud);
 		
-		if (Nnn>1)
+		if (Nnn>1 && U[1])
 		{
 			//Find all the distinct pairs of nearest neighbor sites (i,m) by looking for each nearest neighbor to site i at an index m>i in the lattice. All the nearest neighbors of i are searched, so the spatial distribution of site indices is not important.
 			
@@ -288,7 +288,7 @@ void Hamiltonian<ind_T, val_T>::set_V_Hubbard_2D()
 				if (m<L) insert_elems_ext_Hubbard(i, m, U[1]);
 			}
 			
-			if (Nnn>2)
+			if (Nnn>2 && U[2])
 			{
 				//Find all the distinct pairs of next nearest neighbor sites (i,m) by looking for each next nearest neighbor to site i at an index m>i in the lattice. All the next nearest neighbors of i are searched, so the spatial distribution of site indices is not important.
 				
